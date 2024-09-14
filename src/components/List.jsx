@@ -11,6 +11,22 @@ const List = () => {
     }
   }, [messages]);
 
+
+  const formatTime = (timestamp) => {
+    if (!timestamp) return '';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return 'Invalid time';
+    }
+  };
+
+  if (!messages || messages.length === 0) {
+    return <div className="flex-1 p-4 text-center">No messages yet. Start a conversation!</div>;
+  }
+
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
       {messages.map((message, index) => (
@@ -24,9 +40,9 @@ const List = () => {
               message.type === 'user' ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-800'
             }`}
           >
-            <p className="text-sm">{message.text}</p>
+            <p className="text-sm">{message.text || 'Empty message'}</p>
             <p className="text-xs text-gray-400 mt-1 text-right">
-              {new Date().toLocaleTimeString()}
+              {formatTime(message.timestamp)}
             </p>
           </div>
         </div>

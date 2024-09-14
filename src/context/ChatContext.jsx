@@ -5,7 +5,19 @@ export const ChatContext = createContext();
 export const ChatProvider = ({ children }) => {
   const [messages, setMessages] = useState(() => {
     const savedMessages = localStorage.getItem("chatMessages");
-    return savedMessages ? JSON.parse(savedMessages) : [];
+    if (savedMessages) {
+      try {
+        const parsedMessages = JSON.parse(savedMessages);
+        return parsedMessages.map((msg) => ({
+          ...msg,
+          timestamp: msg.timestamp || new Date().toISOString(),
+        }));
+      } catch (error) {
+        console.error("Error parsing saved messages:", error);
+        return [];
+      }
+    }
+    return [];
   });
 
   const [userInput, setUserInput] = useState("");
@@ -24,10 +36,15 @@ export const ChatProvider = ({ children }) => {
 
   const handleSendMessage = () => {
     if (userInput.trim()) {
-      const newMessage = { type: "user", text: userInput };
+      const newMessage = {
+        type: "user",
+        text: userInput,
+        timestamp: new Date().toISOString(),
+      };
       const botResponse = {
         type: "bot",
         text: responses[Math.floor(Math.random() * responses.length)],
+        timestamp: new Date().toISOString(),
       };
 
       setMessages((prevMessages) => [...prevMessages, newMessage, botResponse]);
